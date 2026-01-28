@@ -45,9 +45,13 @@ SAuthenServer is a centralized Authentication and Authorization service designed
    ```
 
 3. **Environment Setup:**
+   
+   > **⚠️ Development Note:** 
+   > For development, please use the **real environment variables**. You must connect to the database via **OpenVPN**. Connection details and credentials will be provided to **contributors only**.
+
    Create a `.env` file in the root directory. You will likely need the following variables:
    ```env
-   DATABASE_URL="postgresql://user:password@localhost:5432/sauthenserver"
+   DATABASE_URL="postgresql://user:password@10.x.x.x:5432/skoservice?schema=authenserver_service"
    NEXTAUTH_SECRET="your-secret-key"
    NEXTAUTH_URL="http://localhost:3000"
    ```

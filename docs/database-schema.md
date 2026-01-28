@@ -1,7 +1,8 @@
 # Database Schema Design
 ## Database: PostgreSQL
+## Schema: authenserver_service
 
-This schema is designed to work seamlessly with **Auth.js (NextAuth)** capabilities while supporting our custom RBAC (Role-Based Access Control) requirements.
+This schema is designed to work seamlessly with **Auth.js (NextAuth)** capabilities while supporting our custom RBAC (Role-Based Access Control) requirements. All tables are located within the `authenserver_service` schema to avoid conflicts.
 
 ### 1. ER Diagram (Conceptual)
 *   **User**: The central identity.

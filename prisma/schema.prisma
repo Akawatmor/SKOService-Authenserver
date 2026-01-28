@@ -1,10 +1,12 @@
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["authenserver_service"]
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 model User {
@@ -25,6 +27,7 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   @@map("users")
+  @@schema("authenserver_service")
 }
 
 model Account {
@@ -45,6 +48,7 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
+  @@schema("authenserver_service")
 }
 
 model Session {
@@ -54,6 +58,7 @@ model Session {
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@schema("authenserver_service")
   @@map("sessions")
 }
 
@@ -64,6 +69,7 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+  @@schema("authenserver_service")
 }
 
 // Custom RBAC Tables
@@ -77,6 +83,7 @@ model Role {
   users       UserRole[]
 
   @@map("roles")
+  @@schema("authenserver_service")
 }
 
 model Permission {
@@ -87,6 +94,7 @@ model Permission {
   roles       RolePermission[]
 
   @@map("permissions")
+  @@schema("authenserver_service")
 }
 
 model RolePermission {
@@ -98,6 +106,7 @@ model RolePermission {
 
   @@id([roleId, permissionId])
   @@map("role_permissions")
+  @@schema("authenserver_service")
 }
 
 model UserRole {
@@ -109,6 +118,7 @@ model UserRole {
 
   @@id([userId, roleId])
   @@map("user_roles")
+  @@schema("authenserver_service")
 }
 
 model AuthLog {
@@ -122,4 +132,5 @@ model AuthLog {
   user      User?    @relation(fields: [userId], references: [id])
 
   @@map("auth_logs")
+  @@schema("authenserver_service")
 }
