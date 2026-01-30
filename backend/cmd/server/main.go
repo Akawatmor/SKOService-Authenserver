@@ -5,15 +5,15 @@ import (
 	"log"
 	"os"
 
-	"github.com/gofiber/contrib/fiberprometheus"
+	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
-
-	_ "github.com/yourusername/skoservice-authenserver/backend/docs"
+	// Uncomment after running: swag init -g cmd/server/main.go -o docs
+	// _ "github.com/yourusername/skoservice-authenserver/docs"
 )
 
 // @title SAuthenServer API

@@ -1,44 +1,42 @@
 package utils
-package utils
 
 import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
 
+	"golang.org/x/crypto/bcrypt"
+)
 
+// HashPassword hashes a password using bcrypt
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", fmt.Errorf("failed to hash password: %w", err)
+	}
+	return string(bytes), nil
+}
 
+// CheckPasswordHash compares a password with its hash
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}
 
+// GenerateRandomString generates a random string of specified length
+func GenerateRandomString(length int) (string, error) {
+	bytes := make([]byte, length)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", fmt.Errorf("failed to generate random string: %w", err)
+	}
+	return base64.URLEncoding.EncodeToString(bytes)[:length], nil
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}	return base64.URLEncoding.EncodeToString(bytes), nil	}		return "", fmt.Errorf("failed to generate ID: %w", err)	if _, err := rand.Read(bytes); err != nil {	bytes := make([]byte, 16)func GenerateID() (string, error) {// GenerateID generates a random ID (similar to cuid)}	return base64.URLEncoding.EncodeToString(bytes)[:length], nil	}		return "", fmt.Errorf("failed to generate random string: %w", err)	if _, err := rand.Read(bytes); err != nil {	bytes := make([]byte, length)func GenerateRandomString(length int) (string, error) {// GenerateRandomString generates a random string of specified length}	return err == nil	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))func CheckPasswordHash(password, hash string) bool {// CheckPasswordHash compares a password with its hash}	return string(bytes), nil	}		return "", fmt.Errorf("failed to hash password: %w", err)	if err != nil {	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)func HashPassword(password string) (string, error) {// HashPassword hashes a password using bcrypt)	"golang.org/x/crypto/bcrypt"
+// GenerateID generates a random ID (similar to cuid)
+func GenerateID() (string, error) {
+	bytes := make([]byte, 16)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", fmt.Errorf("failed to generate ID: %w", err)
+	}
+	return base64.URLEncoding.EncodeToString(bytes), nil
+}

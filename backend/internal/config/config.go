@@ -1,133 +1,132 @@
 package config
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}	return defaultValue	}		}			return duration		if duration, err := time.ParseDuration(value); err == nil {	if value := os.Getenv(key); value != "" {func getEnvAsDuration(key string, defaultValue time.Duration) time.Duration {}	return defaultValue	}		}			return intValue		if intValue, err := strconv.Atoi(value); err == nil {	if value := os.Getenv(key); value != "" {func getEnvAsInt(key string, defaultValue int) int {}	return defaultValue	}		return value	if value := os.Getenv(key); value != "" {func getEnv(key, defaultValue string) string {}	return cfg, nil	}		return nil, fmt.Errorf("PASETO_SECRET_KEY must be at least 32 bytes")	if len(cfg.PasetoSecretKey) < 32 {	}		return nil, fmt.Errorf("PASETO_SECRET_KEY is required")	if cfg.PasetoSecretKey == "" {	// Validate required fields	}		RateLimitDuration: getEnvAsDuration("RATE_LIMIT_DURATION", time.Minute),		RateLimitMax:      getEnvAsInt("RATE_LIMIT_MAX", 100),		// Rate Limiting		CORSOrigins: getEnv("CORS_ORIGINS", "http://localhost:3000"),		// CORS		OAuthGitHubRedirectURL:  getEnv("OAUTH_GITHUB_REDIRECT_URL", ""),		OAuthGitHubClientSecret: getEnv("OAUTH_GITHUB_CLIENT_SECRET", ""),		OAuthGitHubClientID:     getEnv("OAUTH_GITHUB_CLIENT_ID", ""),		OAuthGoogleRedirectURL:  getEnv("OAUTH_GOOGLE_REDIRECT_URL", ""),		OAuthGoogleClientSecret: getEnv("OAUTH_GOOGLE_CLIENT_SECRET", ""),		OAuthGoogleClientID:     getEnv("OAUTH_GOOGLE_CLIENT_ID", ""),		// OAuth		RefreshTokenDuration: getEnvAsDuration("REFRESH_TOKEN_DURATION", 168*time.Hour),		SessionDuration:      getEnvAsDuration("SESSION_DURATION", 24*time.Hour),		PasetoSecretKey:      getEnv("PASETO_SECRET_KEY", ""),		// Authentication		RedisDB:       getEnvAsInt("REDIS_DB", 0),		RedisPassword: getEnv("REDIS_PASSWORD", ""),		RedisURL:      getEnv("REDIS_URL", "redis://localhost:6379"),		// Redis		DBMinConns:  getEnvAsInt("DB_MIN_CONNECTIONS", 10),		DBMaxConns:  getEnvAsInt("DB_MAX_CONNECTIONS", 100),		DBSchema:    getEnv("DB_SCHEMA", "authenserver_service"),		DBName:      getEnv("DB_NAME", "skoservice"),		DBPassword:  getEnv("DB_PASSWORD", "postgres"),		DBUser:      getEnv("DB_USER", "postgres"),		DBPort:      getEnvAsInt("DB_PORT", 5432),		DBHost:      getEnv("DB_HOST", "localhost"),		DatabaseURL: getEnv("DATABASE_URL", ""),		// Database		Environment: getEnv("ENVIRONMENT", "development"),		Port:        getEnv("PORT", "8080"),	cfg := &Config{func Load() (*Config, error) {}	RateLimitDuration time.Duration	RateLimitMax      int	// Rate Limiting	CORSOrigins string	// CORS	OAuthGitHubRedirectURL  string	OAuthGitHubClientSecret string	OAuthGitHubClientID     string		OAuthGoogleRedirectURL  string	OAuthGoogleClientSecret string	OAuthGoogleClientID     string	// OAuth	RefreshTokenDuration  time.Duration	SessionDuration       time.Duration	PasetoSecretKey       string	// Authentication	RedisDB       int	RedisPassword string	RedisURL      string	// Redis	DBMinConns      int	DBMaxConns      int	DBSchema        string	DBName          string	DBPassword      string	DBUser          string	DBPort          int	DBHost          string	DatabaseURL     string	// Database	Environment string	Port        string	// Servertype Config struct {)	"time"	"strconv"	"os"	"fmt"import (package config
+import (
+	"fmt"
+	"os"
+	"strconv"
+	"time"
+)
+
+// Config holds all application configuration
+type Config struct {
+	// Server
+	Port        string
+	Environment string
+
+	// Database
+	DatabaseURL string
+	DBHost      string
+	DBPort      int
+	DBUser      string
+	DBPassword  string
+	DBName      string
+	DBSchema    string
+	DBMaxConns  int
+	DBMinConns  int
+
+	// Redis
+	RedisURL      string
+	RedisPassword string
+	RedisDB       int
+
+	// Authentication
+	PasetoSecretKey      string
+	SessionDuration      time.Duration
+	RefreshTokenDuration time.Duration
+
+	// OAuth
+	OAuthGoogleClientID     string
+	OAuthGoogleClientSecret string
+	OAuthGoogleRedirectURL  string
+
+	OAuthGitHubClientID     string
+	OAuthGitHubClientSecret string
+	OAuthGitHubRedirectURL  string
+
+	// CORS
+	CORSOrigins string
+
+	// Rate Limiting
+	RateLimitMax      int
+	RateLimitDuration time.Duration
+}
+
+// Load reads configuration from environment variables
+func Load() (*Config, error) {
+	cfg := &Config{
+		Port:        getEnv("PORT", "8080"),
+		Environment: getEnv("ENVIRONMENT", "development"),
+
+		// Database
+		DatabaseURL: getEnv("DATABASE_URL", ""),
+		DBHost:      getEnv("DB_HOST", "localhost"),
+		DBPort:      getEnvAsInt("DB_PORT", 5432),
+		DBUser:      getEnv("DB_USER", "postgres"),
+		DBPassword:  getEnv("DB_PASSWORD", "postgres"),
+		DBName:      getEnv("DB_NAME", "skoservice"),
+		DBSchema:    getEnv("DB_SCHEMA", "authenserver_service"),
+		DBMaxConns:  getEnvAsInt("DB_MAX_CONNECTIONS", 100),
+		DBMinConns:  getEnvAsInt("DB_MIN_CONNECTIONS", 10),
+
+		// Redis
+		RedisURL:      getEnv("REDIS_URL", "redis://localhost:6379"),
+		RedisPassword: getEnv("REDIS_PASSWORD", ""),
+		RedisDB:       getEnvAsInt("REDIS_DB", 0),
+
+		// Authentication
+		PasetoSecretKey:      getEnv("PASETO_SECRET_KEY", ""),
+		SessionDuration:      getEnvAsDuration("SESSION_DURATION", 24*time.Hour),
+		RefreshTokenDuration: getEnvAsDuration("REFRESH_TOKEN_DURATION", 168*time.Hour),
+
+		// OAuth
+		OAuthGoogleClientID:     getEnv("OAUTH_GOOGLE_CLIENT_ID", ""),
+		OAuthGoogleClientSecret: getEnv("OAUTH_GOOGLE_CLIENT_SECRET", ""),
+		OAuthGoogleRedirectURL:  getEnv("OAUTH_GOOGLE_REDIRECT_URL", ""),
+
+		OAuthGitHubClientID:     getEnv("OAUTH_GITHUB_CLIENT_ID", ""),
+		OAuthGitHubClientSecret: getEnv("OAUTH_GITHUB_CLIENT_SECRET", ""),
+		OAuthGitHubRedirectURL:  getEnv("OAUTH_GITHUB_REDIRECT_URL", ""),
+
+		// CORS
+		CORSOrigins: getEnv("CORS_ORIGINS", "http://localhost:3000"),
+
+		// Rate Limiting
+		RateLimitMax:      getEnvAsInt("RATE_LIMIT_MAX", 100),
+		RateLimitDuration: getEnvAsDuration("RATE_LIMIT_DURATION", time.Minute),
+	}
+
+	// Validate required fields
+	if cfg.PasetoSecretKey == "" {
+		return nil, fmt.Errorf("PASETO_SECRET_KEY is required")
+	}
+	if len(cfg.PasetoSecretKey) < 32 {
+		return nil, fmt.Errorf("PASETO_SECRET_KEY must be at least 32 bytes")
+	}
+
+	return cfg, nil
+}
+
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+func getEnvAsInt(key string, defaultValue int) int {
+	if value := os.Getenv(key); value != "" {
+		if intValue, err := strconv.Atoi(value); err == nil {
+			return intValue
+		}
+	}
+	return defaultValue
+}
+
+func getEnvAsDuration(key string, defaultValue time.Duration) time.Duration {
+	if value := os.Getenv(key); value != "" {
+		if duration, err := time.ParseDuration(value); err == nil {
+			return duration
+		}
+	}
+	return defaultValue
+}
