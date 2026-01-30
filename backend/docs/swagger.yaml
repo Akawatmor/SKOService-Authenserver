@@ -1,0 +1,21 @@
+basePath: /api/v1
+host: localhost:8080
+info:
+  contact:
+    email: support@skoservice.com
+    name: API Support
+  description: Centralized Authentication and Authorization Service
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: SAuthenServer API
+  version: "2.0"
+paths: {}
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the access token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
