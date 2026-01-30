@@ -11,12 +11,27 @@ SAuthenServer is a centralized Authentication and Authorization service designed
 
 ## 🛠 Technology Stack
 
-- **Framework:** [Next.js 14](https://nextjs.org/) (App Router)
+### Frontend
+- **Framework:** [Next.js 15](https://nextjs.org/) (App Router)
+- **Runtime:** [Bun](https://bun.sh/) - High-performance JavaScript runtime
 - **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **UI Components:** Shadcn/ui
+
+### Backend
+- **Language:** [Go (Golang)](https://go.dev/)
+- **Framework:** [Fiber](https://gofiber.io/) - Express-inspired web framework
 - **Database:** PostgreSQL
-- **ORM:** [Prisma](https://www.prisma.io/)
-- **Authentication:** [NextAuth.js / Auth.js](https://next-auth.js.org/)
+- **Database Toolkit:** [sqlc](https://sqlc.dev/) - Type-safe SQL code generation
+- **Cache:** Redis - In-memory data structure store
+- **Authentication:** [PASETO](https://paseto.io/) (Platform-Agnostic Security Tokens) + OAuth2
+- **API Documentation:** Swagger/OpenAPI 3.0
+
+### Infrastructure
+- **Containerization:** Docker + Docker Compose
+- **Reverse Proxy:** Traefik - Cloud-native edge router
 - **Deployment:** Docker / Proxmox LXC
+- **CI/CD:** GitHub Actions
 
 ## 📂 Documentation
 
@@ -28,50 +43,102 @@ SAuthenServer is a centralized Authentication and Authorization service designed
 
 ### Prerequisites
 
-- Node.js (v18+ recommended)
-- PostgreSQL Database
+- [Bun](https://bun.sh/) (v1.0+)
+- [Go](https://go.dev/) (v1.22+)
+- [Docker](https://www.docker.com/) & Docker Compose
+- PostgreSQL Database (or use Docker Compose)
+- Redis (or use Docker Compose)
 
 ### Installation
 
 1. **Clone the repository:**
    ```bash
    git clone <repository-url>
-   cd SKOService-Authenserver
-   ```
-
-2. **Install dependencies:**
+   cd SKOServFrontend dependencies:**
    ```bash
-   npm install
+   cd frontend
+   bun install
    ```
 
-3. **Environment Setup:**
+3. **Install Backend dependencies:**
+   ```bash
+   cd backend
+   go mod download
+   ```
+
+4  npm install
+   ````.env` files:
    
-   > **⚠️ Development Note:** 
-   > For development, please use the **real environment variables**. You must connect to the database via **OpenVPN**. Connection details and credentials will be provided to **contributors only**.
-
-   Create a `.env` file in the root directory. You will likely need the following variables:
+   **Backend (.env in `/backend`):**
    ```env
-   DATABASE_URL="postgresql://user:password@10.x.x.x:5432/skoservice?schema=authenserver_service"
-   NEXTAUTH_SECRET="your-secret-key"
-   NEXTAUTH_URL="http://localhost:3000"
+   # Database
+   DATABASE_URL=postgresql://user:password@localhost:5432/skoservice?sslmode=disable
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USER=user
+   DB_PASSWORD=password
+   DB_NAME=skoservice
+   DB_SCHEMA=authenserver_service
+   
+   # Redis
+   REDIS_URL=redis://localhost:6379
+   REDIS_PASSWORD=
+   
+   # Server
+   PORT=8080
+   ENVIRONMENT=development
+   
+   # Auth
+   PASETO_SECRET_KEY=your-32-byte-secret-key-here
+   OAUTH_GOOGLE_CLIENT_ID=your-google-client-id
+   OAUTH_GOOGLE_CLIENT_SECRET=your-google-client-secret
+   OAUTH_GITHUB_CLIENT_ID=your-github-client-id
+   OAUTH_GITHUB_CLIENT_SECRET=your-github-client-secret
+   ```
+   
+   **Frontend (.env.local in `/frontend`):**
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:8080/api
    ```
 
-4. **Database Setup:**
-   Generate the Prisma client:
+5. **Run with Docker Compose (Recommended):**
    ```bash
-   npx prisma generate
+   docker-compose up -d
    ```
-   (Optional) Push the schema to the database if you have it running:
+   
+   Or run services individually:
+   
+   **Backend:**
    ```bash
-   npx prisma db push
+   cd backend
+   go run cmd/server/main.go
+   ```
+   
+   **Frontend:**
+   ```bash
+   cd frontend
+   bun dev
    ```
 
-5. **Run the development server:**
-   ```bash
-   npm run dev
-   ```
+   - Frontend: [http://localhost:3000](http://localhost:3000)
+   - Backend API: [http://localhost:8080](http://localhost:8080)
+   - API Documentation: [http://localhost:8080/swagger](http://localhost:8080/swagger)
 
-   Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📜 Scripts
+
+### Frontend
+- `bun dev`: Runs the Next.js app in development mode
+- `bun build`: Builds the application for production
+- `bun start`: Starts the production build
+- `bun lint`: Runs ESLint
+
+### Backend
+- `go run cmd/server/main.go`: Run the Go server
+- `go test ./...`: Run all tests
+- `make sqlc`: Generate type-safe Go code from SQL
+- `make migrate-up`: Run database migrations
+- `make migrate-down`: Rollback database migrations
+- `make swagger`: Generate Swagger documentation your browser to see the result.
 
 ## 📜 Scripts
 
