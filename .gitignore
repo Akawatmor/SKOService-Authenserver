@@ -1,28 +1,39 @@
 # Dependencies
-/node_modules
-/.pnp
+node_modules/
+.pnp
 .pnp.js
 
 # Testing
-/coverage
+coverage/
+*.test
+*.out
 
-# Next.js
-/.next/
-/out/
+# Frontend (Next.js)
+.next/
+out/
+build/
+dist/
 
-# Production
-/build
+# Backend (Go)
+bin/
+vendor/
+*.exe
+*.dll
+*.so
+*.dylib
 
 # Misc
 .DS_Store
 Thumbs.db
 *.pem
+desktop.ini
 
-# Debug
+# Debug & Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
 
 # Environment Variables (DO NOT COMMIT)
 .env
@@ -31,9 +42,6 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 *.env
-*.env.*
-
-# Keep .env.example if you create one later
 !.env.example
 
 # Vercel
@@ -41,16 +49,39 @@ yarn-error.log*
 
 # TypeScript
 *.tsbuildinfo
+next-env.d.ts
 
-# Prisma (SQLite files - in case someone runs locally with sqlite)
-/prisma/*.db
-/prisma/*.db-journal
+# Database
+*.db
+*.db-journal
+/prisma
 
 # Editor directories and files
-.idea
-.vscode
+.idea/
+.vscode/
 *.suo
-*.ntvs
+*.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*~
+
+# Docker
+docker-compose.override.yml
+
+# Traefik
+traefik/letsencrypt/
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Go workspace
+go.work
+go.work.sum
