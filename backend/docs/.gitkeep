@@ -1,0 +1,2 @@
+# This directory will contain auto-generated Swagger docs
+# Run: swag init -g cmd/server/main.go -o docs
