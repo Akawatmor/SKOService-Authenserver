@@ -1,0 +1,79 @@
+http:
+  routers:
+    # Backend API Router
+    api-router:
+      rule: "Host(`api.yourdomain.com`) || PathPrefix(`/api`)"
+      service: backend-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - rate-limit
+        - security-headers
+    
+    # Frontend Router
+    frontend-router:
+      rule: "Host(`auth.yourdomain.com`)"
+      service: frontend-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - security-headers
+
+  services:
+    backend-service:
+      loadBalancer:
+        servers:
+          - url: "http://backend:8080"
+        healthCheck:
+          path: /health
+          interval: 10s
+          timeout: 3s
+    
+    frontend-service:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:3000"
+
+  middlewares:
+    # Rate limiting
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+        period: 1m
+    
+    # Security headers
+    security-headers:
+      headers:
+        frameDeny: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        customFrameOptionsValue: "SAMEORIGIN"
+        customResponseHeaders:
+          X-Powered-By: "SAuthenServer"
+          Server: ""
+    
+    # CORS
+    cors:
+      headers:
+        accessControlAllowMethods:
+          - "GET"
+          - "POST"
+          - "PUT"
+          - "DELETE"
+          - "OPTIONS"
+        accessControlAllowHeaders:
+          - "Content-Type"
+          - "Authorization"
+        accessControlAllowOriginList:
+          - "https://auth.yourdomain.com"
+        accessControlMaxAge: 100
+        addVaryHeader: true
