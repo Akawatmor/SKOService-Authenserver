@@ -33,11 +33,19 @@ SAuthenServer is a centralized Authentication and Authorization service designed
 - **Deployment:** Docker / Proxmox LXC
 - **CI/CD:** GitHub Actions
 
+### DevOps & Observability
+- **API Documentation:** [Swagger/OpenAPI 3.0](https://swagger.io/) with [swaggo/swag](https://github.com/swaggo/swag)
+- **Metrics Collection:** [Prometheus](https://prometheus.io/) - Time-series database for metrics
+- **Dashboards:** [Grafana](https://grafana.com/) - Visualization and monitoring
+- **Database Metrics:** PostgreSQL Exporter
+- **Cache Metrics:** Redis Exporter
+
 ## 📂 Documentation
 
 - [Architecture Design](docs/architecture-design.md)
 - [CI/CD Process](docs/cicd-process.md)
 - [Database Schema](docs/database-schema.md)
+- [Monitoring & Observability](docs/monitoring-observability.md)
 
 ## 🏁 Getting Started
 
@@ -123,6 +131,8 @@ SAuthenServer is a centralized Authentication and Authorization service designed
    - Frontend: [http://localhost:3000](http://localhost:3000)
    - Backend API: [http://localhost:8080](http://localhost:8080)
    - API Documentation: [http://localhost:8080/swagger](http://localhost:8080/swagger)
+   - Prometheus: [http://localhost:9090](http://localhost:9090)
+   - Grafana: [http://localhost:3001](http://localhost:3001) (admin/admin)
 
 ## 📜 Scripts
 
@@ -138,7 +148,48 @@ SAuthenServer is a centralized Authentication and Authorization service designed
 - `make sqlc`: Generate type-safe Go code from SQL
 - `make migrate-up`: Run database migrations
 - `make migrate-down`: Rollback database migrations
-- `make swagger`: Generate Swagger documentation your browser to see the result.
+- `make swagger`: Generate Swagger documentation
+
+### DevOps
+- `docker-compose up -d`: Start all services (including monitoring)
+- `docker-compose up -d prometheus grafana`: Start monitoring stack only
+- `docker-compose logs -f backend`: View backend logs
+
+## 🔍 Monitoring & Observability
+
+### Swagger API Documentation
+Access interactive API documentation at [http://localhost:8080/swagger](http://localhost:8080/swagger)
+
+```bash
+# Generate/update Swagger docs
+cd backend && swag init -g cmd/server/main.go -o docs
+```
+
+### Prometheus Metrics
+- **URL:** [http://localhost:9090](http://localhost:9090)
+- **Metrics Endpoint:** `GET /metrics` on backend
+- **Scrape Targets:** Backend, PostgreSQL, Redis, Traefik
+
+### Grafana Dashboards
+- **URL:** [http://localhost:3001](http://localhost:3001)
+- **Default Login:** admin / admin
+- **Pre-configured Dashboard:** SAuthenServer Metrics
+  - Request rate & latency
+  - HTTP status codes
+  - Memory usage
+  - Error rates
+
+### Example Prometheus Queries
+```promql
+# Request rate
+rate(http_requests_total{job="sauthenserver-backend"}[5m])
+
+# P95 response time
+histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+
+# Error rate
+rate(http_requests_total{status=~"5.."}[5m])
+```
 
 ## 📜 Scripts
 
