@@ -1,19 +1,20 @@
 -- name: CreateSession :one
 INSERT INTO authenserver_service.sessions (
-    id, session_token, user_id, expires, created_at
+    id, "sessionToken", "userId", expires
 ) VALUES (
-    $1, $2, $3, $4, NOW()
+    $1, $2, $3, $4
 )
-RETURNING *;
+RETURNING id, "sessionToken", "userId", expires;
 
 -- name: GetSessionByToken :one
-SELECT * FROM authenserver_service.sessions
-WHERE session_token = $1 AND expires > NOW()
+SELECT id, "sessionToken", "userId", expires
+FROM authenserver_service.sessions
+WHERE "sessionToken" = $1 AND expires > NOW()
 LIMIT 1;
 
 -- name: DeleteSession :exec
 DELETE FROM authenserver_service.sessions
-WHERE session_token = $1;
+WHERE "sessionToken" = $1;
 
 -- name: DeleteExpiredSessions :exec
 DELETE FROM authenserver_service.sessions
@@ -21,4 +22,4 @@ WHERE expires < NOW();
 
 -- name: DeleteUserSessions :exec
 DELETE FROM authenserver_service.sessions
-WHERE user_id = $1;
+WHERE "userId" = $1;

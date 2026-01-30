@@ -1,41 +1,47 @@
 -- name: GetRoleByID :one
-SELECT * FROM authenserver_service.roles
+SELECT id, name, description, created_at, updated_at
+FROM authenserver_service.roles
 WHERE id = $1 LIMIT 1;
 
 -- name: GetRoleByName :one
-SELECT * FROM authenserver_service.roles
+SELECT id, name, description, created_at, updated_at
+FROM authenserver_service.roles
 WHERE name = $1 LIMIT 1;
 
 -- name: ListRoles :many
-SELECT * FROM authenserver_service.roles
+SELECT id, name, description, created_at, updated_at
+FROM authenserver_service.roles
 ORDER BY name;
 
 -- name: CreateRole :one
 INSERT INTO authenserver_service.roles (name, description)
 VALUES ($1, $2)
-RETURNING *;
+RETURNING id, name, description, created_at, updated_at;
 
 -- name: GetUserRoles :many
-SELECT r.* FROM authenserver_service.roles r
-INNER JOIN authenserver_service.user_roles ur ON r.id = ur.role_id
-WHERE ur.user_id = $1;
+SELECT r.id, r.name, r.description, r.created_at, r.updated_at
+FROM authenserver_service.roles r
+INNER JOIN authenserver_service.user_roles ur ON r.id = ur."roleId"
+WHERE ur."userId" = $1;
 
 -- name: AssignRoleToUser :exec
-INSERT INTO authenserver_service.user_roles (user_id, role_id)
+INSERT INTO authenserver_service.user_roles ("userId", "roleId")
 VALUES ($1, $2)
 ON CONFLICT DO NOTHING;
 
 -- name: RemoveRoleFromUser :exec
 DELETE FROM authenserver_service.user_roles
-WHERE user_id = $1 AND role_id = $2;
+WHERE "userId" = $1 AND "roleId" = $2;
 
 -- name: GetRolePermissions :many
-SELECT p.* FROM authenserver_service.permissions p
-INNER JOIN authenserver_service.role_permissions rp ON p.id = rp.permission_id
-WHERE rp.role_id = $1;
+SELECT p.id, p.slug, p.description, p.created_at
+FROM authenserver_service.permissions p
+INNER JOIN authenserver_service.role_permissions rp ON p.id = rp."permissionId"
+WHERE rp."roleId" = $1;
 
 -- name: GetUserPermissions :many
-SELECT DISTINCT p.* FROM authenserver_service.permissions p
-INNER JOIN authenserver_service.role_permissions rp ON p.id = rp.permission_id
-INNER JOIN authenserver_service.user_roles ur ON rp.role_id = ur.role_id
-WHERE ur.user_id = $1;
+SELECT DISTINCT p.id, p.slug, p.description, p.created_at
+FROM authenserver_service.permissions p
+INNER JOIN authenserver_service.role_permissions rp ON p.id = rp."permissionId"
+INNER JOIN authenserver_service.user_roles ur ON rp."roleId" = ur."roleId"
+WHERE ur."userId" = $1;
