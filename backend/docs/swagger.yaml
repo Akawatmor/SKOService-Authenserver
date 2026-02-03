@@ -1,4 +1,47 @@
 basePath: /api/v1
+definitions:
+  main.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  main.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      turnstileToken:
+        type: string
+    type: object
+  main.UpdateUserReq:
+    properties:
+      image:
+        type: string
+      name:
+        type: string
+    type: object
+  main.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      email_verified:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -11,7 +54,245 @@ info:
   termsOfService: http://swagger.io/terms/
   title: SAuthenServer API
   version: "2.0"
-paths: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password to get JWT token
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login user
+      tags:
+      - Auth
+  /auth/oauth/cloudflare/callback:
+    post:
+      consumes:
+      - application/json
+      description: Exchange auth code for token
+      parameters:
+      - description: Code
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Cloudflare OAuth Callback
+      tags:
+      - Auth
+  /auth/oauth/cloudflare/url:
+    get:
+      description: Get the URL to redirect the user for Cloudflare Access (OIDC)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Cloudflare OAuth URL
+      tags:
+      - Auth
+  /auth/oauth/github/callback:
+    post:
+      consumes:
+      - application/json
+      description: Exchange auth code for token
+      parameters:
+      - description: Code
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: GitHub OAuth Callback
+      tags:
+      - Auth
+  /auth/oauth/github/url:
+    get:
+      description: Get the URL to redirect the user for GitHub OAuth
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get GitHub OAuth URL
+      tags:
+      - Auth
+  /auth/oauth/google/callback:
+    post:
+      consumes:
+      - application/json
+      description: Exchange auth code for token
+      parameters:
+      - description: Code
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Google OAuth Callback
+      tags:
+      - Auth
+  /auth/oauth/google/url:
+    get:
+      description: Get the URL to redirect the user for Google OAuth
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Google OAuth URL
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email, password, and turnstile token
+      parameters:
+      - description: Register Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new user
+      tags:
+      - Auth
+  /users/me:
+    get:
+      description: Get current user profile details
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.UserResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get User Profile
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Update user name or image
+      parameters:
+      - description: Update User Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update User Profile
+      tags:
+      - User
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and the access token.

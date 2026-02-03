@@ -18,12 +18,12 @@ help:
 # Build the application
 build:
 	@echo "Building application..."
-	cd backend && go build -o ../bin/server cmd/server/main.go
+	cd backend && go build -o ../bin/server ./cmd/server
 
 # Run the application
 run:
 	@echo "Running application..."
-	cd backend && go run cmd/server/main.go
+	cd backend && go run ./cmd/server
 
 # Run tests
 test:

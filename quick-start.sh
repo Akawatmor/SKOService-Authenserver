@@ -256,7 +256,7 @@ PID_FILE=".running_pids"
 # Start backend
 print_info "Starting backend server..."
 cd backend
-nohup go run cmd/server/main.go > ../logs/backend.log 2>&1 &
+nohup go run ./cmd/server > ../logs/backend.log 2>&1 &
 BACKEND_PID=$!
 echo "backend:$BACKEND_PID" >> "../$PID_FILE"
 cd ..

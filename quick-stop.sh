@@ -131,7 +131,8 @@ else
 fi
 
 # Kill any remaining Go server processes
-pkill -f "go run cmd/server/main.go" 2>/dev/null && print_success "Stopped Go backend process" || true
+pkill -f "go run ./cmd/server" 2>/dev/null && print_success "Stopped Go backend process" || true
+pkill -f "go run cmd/server/main.go" 2>/dev/null && print_success "Stopped legacy Go backend process" || true
 
 # Kill any remaining bun dev processes  
 pkill -f "bun dev" 2>/dev/null && print_success "Stopped Bun frontend process" || true

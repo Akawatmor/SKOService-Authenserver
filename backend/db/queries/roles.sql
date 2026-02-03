@@ -21,27 +21,27 @@ RETURNING id, name, description, created_at, updated_at;
 -- name: GetUserRoles :many
 SELECT r.id, r.name, r.description, r.created_at, r.updated_at
 FROM authenserver_service.roles r
-INNER JOIN authenserver_service.user_roles ur ON r.id = ur."roleId"
-WHERE ur."userId" = $1;
+INNER JOIN authenserver_service.user_roles ur ON r.id = ur.role_id
+WHERE ur.user_id = $1;
 
 -- name: AssignRoleToUser :exec
-INSERT INTO authenserver_service.user_roles ("userId", "roleId")
+INSERT INTO authenserver_service.user_roles (user_id, role_id)
 VALUES ($1, $2)
 ON CONFLICT DO NOTHING;
 
 -- name: RemoveRoleFromUser :exec
 DELETE FROM authenserver_service.user_roles
-WHERE "userId" = $1 AND "roleId" = $2;
+WHERE user_id = $1 AND role_id = $2;
 
 -- name: GetRolePermissions :many
 SELECT p.id, p.slug, p.description, p.created_at
 FROM authenserver_service.permissions p
-INNER JOIN authenserver_service.role_permissions rp ON p.id = rp."permissionId"
-WHERE rp."roleId" = $1;
+INNER JOIN authenserver_service.role_permissions rp ON p.id = rp.permission_id
+WHERE rp.role_id = $1;
 
 -- name: GetUserPermissions :many
 SELECT DISTINCT p.id, p.slug, p.description, p.created_at
 FROM authenserver_service.permissions p
-INNER JOIN authenserver_service.role_permissions rp ON p.id = rp."permissionId"
-INNER JOIN authenserver_service.user_roles ur ON rp."roleId" = ur."roleId"
-WHERE ur."userId" = $1;
+INNER JOIN authenserver_service.role_permissions rp ON p.id = rp.permission_id
+INNER JOIN authenserver_service.user_roles ur ON rp.role_id = ur.role_id
+WHERE ur.user_id = $1;
