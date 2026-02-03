@@ -13,18 +13,18 @@ import (
 
 const createSession = `-- name: CreateSession :one
 INSERT INTO authenserver_service.sessions (
-    id, "sessionToken", "userId", expires
+    id, session_token, user_id, expires
 ) VALUES (
     $1, $2, $3, $4
 )
-RETURNING id, "sessionToken", "userId", expires
+RETURNING id, session_token, user_id, expires
 `
 
 type CreateSessionRow struct {
-	ID           string      `json:"id"`
-	SessionToken string      `json:"sessionToken"`
-	UserId       string      `json:"userId"`
-	Expires      interface{} `json:"expires"`
+	ID           string           `json:"id"`
+	SessionToken string           `json:"session_token"`
+	UserID       string           `json:"user_id"`
+	Expires      pgtype.Timestamp `json:"expires"`
 }
 
 func (q *Queries) CreateSession(ctx context.Context, column1 pgtype.Text, column2 pgtype.Text, column3 pgtype.Text, column4 pgtype.Timestamp) (CreateSessionRow, error) {
@@ -38,7 +38,7 @@ func (q *Queries) CreateSession(ctx context.Context, column1 pgtype.Text, column
 	err := row.Scan(
 		&i.ID,
 		&i.SessionToken,
-		&i.UserId,
+		&i.UserID,
 		&i.Expires,
 	)
 	return i, err
@@ -56,7 +56,7 @@ func (q *Queries) DeleteExpiredSessions(ctx context.Context) error {
 
 const deleteSession = `-- name: DeleteSession :exec
 DELETE FROM authenserver_service.sessions
-WHERE "sessionToken" = $1
+WHERE session_token = $1
 `
 
 func (q *Queries) DeleteSession(ctx context.Context, dollar_1 pgtype.Text) error {
@@ -66,7 +66,7 @@ func (q *Queries) DeleteSession(ctx context.Context, dollar_1 pgtype.Text) error
 
 const deleteUserSessions = `-- name: DeleteUserSessions :exec
 DELETE FROM authenserver_service.sessions
-WHERE "userId" = $1
+WHERE user_id = $1
 `
 
 func (q *Queries) DeleteUserSessions(ctx context.Context, dollar_1 pgtype.Text) error {
@@ -75,17 +75,17 @@ func (q *Queries) DeleteUserSessions(ctx context.Context, dollar_1 pgtype.Text) 
 }
 
 const getSessionByToken = `-- name: GetSessionByToken :one
-SELECT id, "sessionToken", "userId", expires
+SELECT id, session_token, user_id, expires
 FROM authenserver_service.sessions
-WHERE "sessionToken" = $1 AND expires > NOW()
+WHERE session_token = $1 AND expires > NOW()
 LIMIT 1
 `
 
 type GetSessionByTokenRow struct {
-	ID           string      `json:"id"`
-	SessionToken string      `json:"sessionToken"`
-	UserId       string      `json:"userId"`
-	Expires      interface{} `json:"expires"`
+	ID           string           `json:"id"`
+	SessionToken string           `json:"session_token"`
+	UserID       string           `json:"user_id"`
+	Expires      pgtype.Timestamp `json:"expires"`
 }
 
 func (q *Queries) GetSessionByToken(ctx context.Context, dollar_1 pgtype.Text) (GetSessionByTokenRow, error) {
@@ -94,7 +94,7 @@ func (q *Queries) GetSessionByToken(ctx context.Context, dollar_1 pgtype.Text) (
 	err := row.Scan(
 		&i.ID,
 		&i.SessionToken,
-		&i.UserId,
+		&i.UserID,
 		&i.Expires,
 	)
 	return i, err

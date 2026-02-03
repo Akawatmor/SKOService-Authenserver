@@ -24,22 +24,22 @@ func (q *Queries) CountUsers(ctx context.Context) (pgtype.Int8, error) {
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO authenserver_service.users (
-    id, name, email, "emailVerified", image, password, "createdAt", "updatedAt"
+    id, name, email, email_verified, image, password, created_at, updated_at
 ) VALUES (
     $1, $2, $3, $4, $5, $6, NOW(), NOW()
 )
-RETURNING id, name, email, "emailVerified", image, password, "createdAt", "updatedAt"
+RETURNING id, name, email, email_verified, image, password, created_at, updated_at
 `
 
 type CreateUserRow struct {
-	ID            string      `json:"id"`
-	Name          pgtype.Text `json:"name"`
-	Email         pgtype.Text `json:"email"`
-	EmailVerified interface{} `json:"emailVerified"`
-	Image         pgtype.Text `json:"image"`
-	Password      pgtype.Text `json:"password"`
-	CreatedAt     interface{} `json:"createdAt"`
-	UpdatedAt     interface{} `json:"updatedAt"`
+	ID            string           `json:"id"`
+	Name          pgtype.Text      `json:"name"`
+	Email         pgtype.Text      `json:"email"`
+	EmailVerified pgtype.Timestamp `json:"email_verified"`
+	Image         pgtype.Text      `json:"image"`
+	Password      pgtype.Text      `json:"password"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, column1 pgtype.Text, column2 pgtype.Text, column3 pgtype.Text, column4 pgtype.Timestamp, column5 pgtype.Text, column6 pgtype.Text) (CreateUserRow, error) {
@@ -76,20 +76,20 @@ func (q *Queries) DeleteUser(ctx context.Context, dollar_1 pgtype.Text) error {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, name, email, "emailVerified", image, password, "createdAt", "updatedAt"
+SELECT id, name, email, email_verified, image, password, created_at, updated_at
 FROM authenserver_service.users
 WHERE email = $1 LIMIT 1
 `
 
 type GetUserByEmailRow struct {
-	ID            string      `json:"id"`
-	Name          pgtype.Text `json:"name"`
-	Email         pgtype.Text `json:"email"`
-	EmailVerified interface{} `json:"emailVerified"`
-	Image         pgtype.Text `json:"image"`
-	Password      pgtype.Text `json:"password"`
-	CreatedAt     interface{} `json:"createdAt"`
-	UpdatedAt     interface{} `json:"updatedAt"`
+	ID            string           `json:"id"`
+	Name          pgtype.Text      `json:"name"`
+	Email         pgtype.Text      `json:"email"`
+	EmailVerified pgtype.Timestamp `json:"email_verified"`
+	Image         pgtype.Text      `json:"image"`
+	Password      pgtype.Text      `json:"password"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
 }
 
 func (q *Queries) GetUserByEmail(ctx context.Context, dollar_1 pgtype.Text) (GetUserByEmailRow, error) {
@@ -109,20 +109,20 @@ func (q *Queries) GetUserByEmail(ctx context.Context, dollar_1 pgtype.Text) (Get
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, name, email, "emailVerified", image, password, "createdAt", "updatedAt"
+SELECT id, name, email, email_verified, image, password, created_at, updated_at
 FROM authenserver_service.users
 WHERE id = $1 LIMIT 1
 `
 
 type GetUserByIDRow struct {
-	ID            string      `json:"id"`
-	Name          pgtype.Text `json:"name"`
-	Email         pgtype.Text `json:"email"`
-	EmailVerified interface{} `json:"emailVerified"`
-	Image         pgtype.Text `json:"image"`
-	Password      pgtype.Text `json:"password"`
-	CreatedAt     interface{} `json:"createdAt"`
-	UpdatedAt     interface{} `json:"updatedAt"`
+	ID            string           `json:"id"`
+	Name          pgtype.Text      `json:"name"`
+	Email         pgtype.Text      `json:"email"`
+	EmailVerified pgtype.Timestamp `json:"email_verified"`
+	Image         pgtype.Text      `json:"image"`
+	Password      pgtype.Text      `json:"password"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
 }
 
 func (q *Queries) GetUserByID(ctx context.Context, dollar_1 pgtype.Text) (GetUserByIDRow, error) {
@@ -142,21 +142,21 @@ func (q *Queries) GetUserByID(ctx context.Context, dollar_1 pgtype.Text) (GetUse
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, name, email, "emailVerified", image, password, "createdAt", "updatedAt"
+SELECT id, name, email, email_verified, image, password, created_at, updated_at
 FROM authenserver_service.users
-ORDER BY "createdAt" DESC
+ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
 `
 
 type ListUsersRow struct {
-	ID            string      `json:"id"`
-	Name          pgtype.Text `json:"name"`
-	Email         pgtype.Text `json:"email"`
-	EmailVerified interface{} `json:"emailVerified"`
-	Image         pgtype.Text `json:"image"`
-	Password      pgtype.Text `json:"password"`
-	CreatedAt     interface{} `json:"createdAt"`
-	UpdatedAt     interface{} `json:"updatedAt"`
+	ID            string           `json:"id"`
+	Name          pgtype.Text      `json:"name"`
+	Email         pgtype.Text      `json:"email"`
+	EmailVerified pgtype.Timestamp `json:"email_verified"`
+	Image         pgtype.Text      `json:"image"`
+	Password      pgtype.Text      `json:"password"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
 }
 
 func (q *Queries) ListUsers(ctx context.Context, column1 pgtype.Int8, column2 pgtype.Int8) ([]ListUsersRow, error) {
@@ -193,22 +193,22 @@ UPDATE authenserver_service.users
 SET
     name = COALESCE($2, name),
     email = COALESCE($3, email),
-    "emailVerified" = COALESCE($4, "emailVerified"),
+    email_verified = COALESCE($4, email_verified),
     image = COALESCE($5, image),
-    "updatedAt" = NOW()
+    updated_at = NOW()
 WHERE id = $1
-RETURNING id, name, email, "emailVerified", image, password, "createdAt", "updatedAt"
+RETURNING id, name, email, email_verified, image, password, created_at, updated_at
 `
 
 type UpdateUserRow struct {
-	ID            string      `json:"id"`
-	Name          pgtype.Text `json:"name"`
-	Email         pgtype.Text `json:"email"`
-	EmailVerified interface{} `json:"emailVerified"`
-	Image         pgtype.Text `json:"image"`
-	Password      pgtype.Text `json:"password"`
-	CreatedAt     interface{} `json:"createdAt"`
-	UpdatedAt     interface{} `json:"updatedAt"`
+	ID            string           `json:"id"`
+	Name          pgtype.Text      `json:"name"`
+	Email         pgtype.Text      `json:"email"`
+	EmailVerified pgtype.Timestamp `json:"email_verified"`
+	Image         pgtype.Text      `json:"image"`
+	Password      pgtype.Text      `json:"password"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, column1 pgtype.Text, column2 pgtype.Text, column3 pgtype.Text, column4 pgtype.Timestamp, column5 pgtype.Text) (UpdateUserRow, error) {
@@ -235,7 +235,7 @@ func (q *Queries) UpdateUser(ctx context.Context, column1 pgtype.Text, column2 p
 
 const updateUserPassword = `-- name: UpdateUserPassword :exec
 UPDATE authenserver_service.users
-SET password = $2, "updatedAt" = NOW()
+SET password = $2, updated_at = NOW()
 WHERE id = $1
 `
 

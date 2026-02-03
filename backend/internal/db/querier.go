@@ -38,7 +38,7 @@ type Querier interface {
 	ListRoles(ctx context.Context) ([]ListRolesRow, error)
 	ListUsers(ctx context.Context, column1 pgtype.Int8, column2 pgtype.Int8) ([]ListUsersRow, error)
 	RemoveRoleFromUser(ctx context.Context, column1 pgtype.Text, column2 pgtype.Int4) error
-	UpdateAccountTokens(ctx context.Context, column1 pgtype.Text, column2 pgtype.Text, column3 pgtype.Text, column4 pgtype.Int4) error
+	UpdateAccountTokens(ctx context.Context, column1 pgtype.Text, column2 pgtype.Text, column3 pgtype.Text, column4 pgtype.Int8) error
 	UpdateUser(ctx context.Context, column1 pgtype.Text, column2 pgtype.Text, column3 pgtype.Text, column4 pgtype.Timestamp, column5 pgtype.Text) (UpdateUserRow, error)
 	UpdateUserPassword(ctx context.Context, column1 pgtype.Text, column2 pgtype.Text) error
 }

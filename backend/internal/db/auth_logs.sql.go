@@ -13,20 +13,20 @@ import (
 
 const createAuthLog = `-- name: CreateAuthLog :one
 INSERT INTO authenserver_service.auth_logs (
-    id, "userId", action, "ipAddress", "userAgent", timestamp
+    id, user_id, action, ip_address, user_agent, timestamp
 ) VALUES (
     $1, $2, $3, $4, $5, NOW()
 )
-RETURNING id, "userId", action, "ipAddress", "userAgent", timestamp
+RETURNING id, user_id, action, ip_address, user_agent, timestamp
 `
 
 type CreateAuthLogRow struct {
-	ID        string      `json:"id"`
-	UserId    pgtype.Text `json:"userId"`
-	Action    string      `json:"action"`
-	IpAddress pgtype.Text `json:"ipAddress"`
-	UserAgent pgtype.Text `json:"userAgent"`
-	Timestamp interface{} `json:"timestamp"`
+	ID        string           `json:"id"`
+	UserID    pgtype.Text      `json:"user_id"`
+	Action    string           `json:"action"`
+	IpAddress pgtype.Text      `json:"ip_address"`
+	UserAgent pgtype.Text      `json:"user_agent"`
+	Timestamp pgtype.Timestamp `json:"timestamp"`
 }
 
 func (q *Queries) CreateAuthLog(ctx context.Context, column1 pgtype.Text, column2 pgtype.Text, column3 pgtype.Text, column4 pgtype.Text, column5 pgtype.Text) (CreateAuthLogRow, error) {
@@ -40,7 +40,7 @@ func (q *Queries) CreateAuthLog(ctx context.Context, column1 pgtype.Text, column
 	var i CreateAuthLogRow
 	err := row.Scan(
 		&i.ID,
-		&i.UserId,
+		&i.UserID,
 		&i.Action,
 		&i.IpAddress,
 		&i.UserAgent,
@@ -50,20 +50,20 @@ func (q *Queries) CreateAuthLog(ctx context.Context, column1 pgtype.Text, column
 }
 
 const getAuthLogsByUser = `-- name: GetAuthLogsByUser :many
-SELECT id, "userId", action, "ipAddress", "userAgent", timestamp
+SELECT id, user_id, action, ip_address, user_agent, timestamp
 FROM authenserver_service.auth_logs
-WHERE "userId" = $1
+WHERE user_id = $1
 ORDER BY timestamp DESC
 LIMIT $2 OFFSET $3
 `
 
 type GetAuthLogsByUserRow struct {
-	ID        string      `json:"id"`
-	UserId    pgtype.Text `json:"userId"`
-	Action    string      `json:"action"`
-	IpAddress pgtype.Text `json:"ipAddress"`
-	UserAgent pgtype.Text `json:"userAgent"`
-	Timestamp interface{} `json:"timestamp"`
+	ID        string           `json:"id"`
+	UserID    pgtype.Text      `json:"user_id"`
+	Action    string           `json:"action"`
+	IpAddress pgtype.Text      `json:"ip_address"`
+	UserAgent pgtype.Text      `json:"user_agent"`
+	Timestamp pgtype.Timestamp `json:"timestamp"`
 }
 
 func (q *Queries) GetAuthLogsByUser(ctx context.Context, column1 pgtype.Text, column2 pgtype.Int8, column3 pgtype.Int8) ([]GetAuthLogsByUserRow, error) {
@@ -77,7 +77,7 @@ func (q *Queries) GetAuthLogsByUser(ctx context.Context, column1 pgtype.Text, co
 		var i GetAuthLogsByUserRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserId,
+			&i.UserID,
 			&i.Action,
 			&i.IpAddress,
 			&i.UserAgent,
@@ -94,19 +94,19 @@ func (q *Queries) GetAuthLogsByUser(ctx context.Context, column1 pgtype.Text, co
 }
 
 const getRecentAuthLogs = `-- name: GetRecentAuthLogs :many
-SELECT id, "userId", action, "ipAddress", "userAgent", timestamp
+SELECT id, user_id, action, ip_address, user_agent, timestamp
 FROM authenserver_service.auth_logs
 ORDER BY timestamp DESC
 LIMIT $1 OFFSET $2
 `
 
 type GetRecentAuthLogsRow struct {
-	ID        string      `json:"id"`
-	UserId    pgtype.Text `json:"userId"`
-	Action    string      `json:"action"`
-	IpAddress pgtype.Text `json:"ipAddress"`
-	UserAgent pgtype.Text `json:"userAgent"`
-	Timestamp interface{} `json:"timestamp"`
+	ID        string           `json:"id"`
+	UserID    pgtype.Text      `json:"user_id"`
+	Action    string           `json:"action"`
+	IpAddress pgtype.Text      `json:"ip_address"`
+	UserAgent pgtype.Text      `json:"user_agent"`
+	Timestamp pgtype.Timestamp `json:"timestamp"`
 }
 
 func (q *Queries) GetRecentAuthLogs(ctx context.Context, column1 pgtype.Int8, column2 pgtype.Int8) ([]GetRecentAuthLogsRow, error) {
@@ -120,7 +120,7 @@ func (q *Queries) GetRecentAuthLogs(ctx context.Context, column1 pgtype.Int8, co
 		var i GetRecentAuthLogsRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserId,
+			&i.UserID,
 			&i.Action,
 			&i.IpAddress,
 			&i.UserAgent,

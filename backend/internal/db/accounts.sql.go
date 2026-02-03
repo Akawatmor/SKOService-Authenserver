@@ -13,13 +13,13 @@ import (
 
 const createAccount = `-- name: CreateAccount :one
 INSERT INTO authenserver_service.accounts (
-    id, "userId", type, provider, "providerAccountId",
+    id, user_id, type, provider, provider_account_id,
     refresh_token, access_token, expires_at, token_type,
     scope, id_token, session_state
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
 )
-RETURNING id, "userId", type, provider, "providerAccountId", refresh_token, access_token, expires_at, token_type, scope, id_token, session_state
+RETURNING id, user_id, type, provider, provider_account_id, refresh_token, access_token, expires_at, token_type, scope, id_token, session_state
 `
 
 type CreateAccountParams struct {
@@ -30,7 +30,7 @@ type CreateAccountParams struct {
 	Column5  pgtype.Text `json:"column_5"`
 	Column6  pgtype.Text `json:"column_6"`
 	Column7  pgtype.Text `json:"column_7"`
-	Column8  pgtype.Int4 `json:"column_8"`
+	Column8  pgtype.Int8 `json:"column_8"`
 	Column9  pgtype.Text `json:"column_9"`
 	Column10 pgtype.Text `json:"column_10"`
 	Column11 pgtype.Text `json:"column_11"`
@@ -39,13 +39,13 @@ type CreateAccountParams struct {
 
 type CreateAccountRow struct {
 	ID                string      `json:"id"`
-	UserId            string      `json:"userId"`
+	UserID            string      `json:"user_id"`
 	Type              string      `json:"type"`
 	Provider          string      `json:"provider"`
-	ProviderAccountId string      `json:"providerAccountId"`
+	ProviderAccountID string      `json:"provider_account_id"`
 	RefreshToken      pgtype.Text `json:"refresh_token"`
 	AccessToken       pgtype.Text `json:"access_token"`
-	ExpiresAt         pgtype.Int4 `json:"expires_at"`
+	ExpiresAt         pgtype.Int8 `json:"expires_at"`
 	TokenType         pgtype.Text `json:"token_type"`
 	Scope             pgtype.Text `json:"scope"`
 	IDToken           pgtype.Text `json:"id_token"`
@@ -70,10 +70,10 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (C
 	var i CreateAccountRow
 	err := row.Scan(
 		&i.ID,
-		&i.UserId,
+		&i.UserID,
 		&i.Type,
 		&i.Provider,
-		&i.ProviderAccountId,
+		&i.ProviderAccountID,
 		&i.RefreshToken,
 		&i.AccessToken,
 		&i.ExpiresAt,
@@ -96,21 +96,21 @@ func (q *Queries) DeleteAccount(ctx context.Context, dollar_1 pgtype.Text) error
 }
 
 const getAccountByProvider = `-- name: GetAccountByProvider :one
-SELECT id, "userId", type, provider, "providerAccountId", refresh_token, access_token, expires_at, token_type, scope, id_token, session_state
+SELECT id, user_id, type, provider, provider_account_id, refresh_token, access_token, expires_at, token_type, scope, id_token, session_state
 FROM authenserver_service.accounts
-WHERE provider = $1 AND "providerAccountId" = $2
+WHERE provider = $1 AND provider_account_id = $2
 LIMIT 1
 `
 
 type GetAccountByProviderRow struct {
 	ID                string      `json:"id"`
-	UserId            string      `json:"userId"`
+	UserID            string      `json:"user_id"`
 	Type              string      `json:"type"`
 	Provider          string      `json:"provider"`
-	ProviderAccountId string      `json:"providerAccountId"`
+	ProviderAccountID string      `json:"provider_account_id"`
 	RefreshToken      pgtype.Text `json:"refresh_token"`
 	AccessToken       pgtype.Text `json:"access_token"`
-	ExpiresAt         pgtype.Int4 `json:"expires_at"`
+	ExpiresAt         pgtype.Int8 `json:"expires_at"`
 	TokenType         pgtype.Text `json:"token_type"`
 	Scope             pgtype.Text `json:"scope"`
 	IDToken           pgtype.Text `json:"id_token"`
@@ -122,10 +122,10 @@ func (q *Queries) GetAccountByProvider(ctx context.Context, column1 pgtype.Text,
 	var i GetAccountByProviderRow
 	err := row.Scan(
 		&i.ID,
-		&i.UserId,
+		&i.UserID,
 		&i.Type,
 		&i.Provider,
-		&i.ProviderAccountId,
+		&i.ProviderAccountID,
 		&i.RefreshToken,
 		&i.AccessToken,
 		&i.ExpiresAt,
@@ -138,20 +138,20 @@ func (q *Queries) GetAccountByProvider(ctx context.Context, column1 pgtype.Text,
 }
 
 const getUserAccounts = `-- name: GetUserAccounts :many
-SELECT id, "userId", type, provider, "providerAccountId", refresh_token, access_token, expires_at, token_type, scope, id_token, session_state
+SELECT id, user_id, type, provider, provider_account_id, refresh_token, access_token, expires_at, token_type, scope, id_token, session_state
 FROM authenserver_service.accounts
-WHERE "userId" = $1
+WHERE user_id = $1
 `
 
 type GetUserAccountsRow struct {
 	ID                string      `json:"id"`
-	UserId            string      `json:"userId"`
+	UserID            string      `json:"user_id"`
 	Type              string      `json:"type"`
 	Provider          string      `json:"provider"`
-	ProviderAccountId string      `json:"providerAccountId"`
+	ProviderAccountID string      `json:"provider_account_id"`
 	RefreshToken      pgtype.Text `json:"refresh_token"`
 	AccessToken       pgtype.Text `json:"access_token"`
-	ExpiresAt         pgtype.Int4 `json:"expires_at"`
+	ExpiresAt         pgtype.Int8 `json:"expires_at"`
 	TokenType         pgtype.Text `json:"token_type"`
 	Scope             pgtype.Text `json:"scope"`
 	IDToken           pgtype.Text `json:"id_token"`
@@ -169,10 +169,10 @@ func (q *Queries) GetUserAccounts(ctx context.Context, dollar_1 pgtype.Text) ([]
 		var i GetUserAccountsRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserId,
+			&i.UserID,
 			&i.Type,
 			&i.Provider,
-			&i.ProviderAccountId,
+			&i.ProviderAccountID,
 			&i.RefreshToken,
 			&i.AccessToken,
 			&i.ExpiresAt,
@@ -200,7 +200,7 @@ SET
 WHERE id = $1
 `
 
-func (q *Queries) UpdateAccountTokens(ctx context.Context, column1 pgtype.Text, column2 pgtype.Text, column3 pgtype.Text, column4 pgtype.Int4) error {
+func (q *Queries) UpdateAccountTokens(ctx context.Context, column1 pgtype.Text, column2 pgtype.Text, column3 pgtype.Text, column4 pgtype.Int8) error {
 	_, err := q.db.Exec(ctx, updateAccountTokens,
 		column1,
 		column2,

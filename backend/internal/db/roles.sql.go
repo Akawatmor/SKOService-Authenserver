@@ -12,7 +12,7 @@ import (
 )
 
 const assignRoleToUser = `-- name: AssignRoleToUser :exec
-INSERT INTO authenserver_service.user_roles ("userId", "roleId")
+INSERT INTO authenserver_service.user_roles (user_id, role_id)
 VALUES ($1, $2)
 ON CONFLICT DO NOTHING
 `
@@ -106,8 +106,8 @@ func (q *Queries) GetRoleByName(ctx context.Context, dollar_1 pgtype.Text) (GetR
 const getRolePermissions = `-- name: GetRolePermissions :many
 SELECT p.id, p.slug, p.description, p.created_at
 FROM authenserver_service.permissions p
-INNER JOIN authenserver_service.role_permissions rp ON p.id = rp."permissionId"
-WHERE rp."roleId" = $1
+INNER JOIN authenserver_service.role_permissions rp ON p.id = rp.permission_id
+WHERE rp.role_id = $1
 `
 
 type GetRolePermissionsRow struct {
@@ -145,9 +145,9 @@ func (q *Queries) GetRolePermissions(ctx context.Context, dollar_1 pgtype.Int4) 
 const getUserPermissions = `-- name: GetUserPermissions :many
 SELECT DISTINCT p.id, p.slug, p.description, p.created_at
 FROM authenserver_service.permissions p
-INNER JOIN authenserver_service.role_permissions rp ON p.id = rp."permissionId"
-INNER JOIN authenserver_service.user_roles ur ON rp."roleId" = ur."roleId"
-WHERE ur."userId" = $1
+INNER JOIN authenserver_service.role_permissions rp ON p.id = rp.permission_id
+INNER JOIN authenserver_service.user_roles ur ON rp.role_id = ur.role_id
+WHERE ur.user_id = $1
 `
 
 type GetUserPermissionsRow struct {
@@ -185,8 +185,8 @@ func (q *Queries) GetUserPermissions(ctx context.Context, dollar_1 pgtype.Text) 
 const getUserRoles = `-- name: GetUserRoles :many
 SELECT r.id, r.name, r.description, r.created_at, r.updated_at
 FROM authenserver_service.roles r
-INNER JOIN authenserver_service.user_roles ur ON r.id = ur."roleId"
-WHERE ur."userId" = $1
+INNER JOIN authenserver_service.user_roles ur ON r.id = ur.role_id
+WHERE ur.user_id = $1
 `
 
 type GetUserRolesRow struct {
@@ -265,7 +265,7 @@ func (q *Queries) ListRoles(ctx context.Context) ([]ListRolesRow, error) {
 
 const removeRoleFromUser = `-- name: RemoveRoleFromUser :exec
 DELETE FROM authenserver_service.user_roles
-WHERE "userId" = $1 AND "roleId" = $2
+WHERE user_id = $1 AND role_id = $2
 `
 
 func (q *Queries) RemoveRoleFromUser(ctx context.Context, column1 pgtype.Text, column2 pgtype.Int4) error {
