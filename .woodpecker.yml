@@ -17,7 +17,7 @@ steps:
 
   # --- BACKEND ZONE ---
   backend-check-and-test:
-    image: golang:1.21-alpine
+    image: golang:1.24-alpine
     # แก้ไข Environment: ต้องเป็น Map (key: value) ห้ามมีขีด (-) นำหน้าแบบ list
     environment:
       DB_HOST: postgres
