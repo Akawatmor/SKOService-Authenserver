@@ -1,0 +1,52 @@
+steps:
+  # --- FRONTEND ZONE ---
+  frontend-check:
+    image: oven/bun:1
+    commands:
+      - cd frontend
+      - bun install --frozen-lockfile
+      - bun run lint
+      - bun run build
+    when:
+      event: push
+      branch: [ develop, "feature/*" ]
+      path: { include: [ 'frontend/**' ] }
+
+  # --- BACKEND ZONE ---
+  backend-test:
+    image: golang:1.21-alpine
+    commands:
+      - cd backend
+      - go mod download
+      - go test -v ./...
+    when:
+      event: push
+      branch: [ develop, "feature/*" ]
+      path: { include: [ 'backend/**' ] }
+
+
+  # --- DEPLOY ZONE (เฉพาะ Develop) ---
+  # คุณอาจจะเพิ่ม frontend-deploy-dev ตรงนี้ด้วยในอนาคต
+  # backend-deploy-dev:
+  #   image: docker:git
+  #   secrets: [ db_host, db_password, jwt_token_secret ] 
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   commands:
+  #     - docker build -t sauthenserver:local-dev -f backend/Dockerfile backend/
+  #     - docker stop sauthenserver-dev1 || true
+  #     - docker rm sauthenserver-dev1 || true
+  #     - docker run -d --name sauthenserver-dev1 \
+  #         --restart unless-stopped \
+  #         --network web-network \
+  #         -p 8081:8080 \
+  #         -e APP_ENV=dev \
+  #         -e DB_HOST=$db_host \
+  #         -e DB_PASSWORD=$db_password \
+  #         -e JWT_SECRET=$jwt_token_secret \
+  #         sauthenserver:local-dev
+  #     - docker image prune -f
+  #   when:
+  #     branch: develop
+  #     event: push
+  #     path: { include: [ 'backend/**' ] }
