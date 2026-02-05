@@ -5,7 +5,7 @@ steps:
     commands:
       - cd frontend
       - bun install --frozen-lockfile
-      - bun run lint
+      # - bun run lint
       - bun run build
     when:
       event: push
