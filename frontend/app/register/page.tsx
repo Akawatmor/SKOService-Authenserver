@@ -31,8 +31,9 @@ export default function Register() {
         turnstileToken: turnstileToken
       });
       router.push('/login');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Registration failed');
       setTurnstileToken(''); 
     }
   };

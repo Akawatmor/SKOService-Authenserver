@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react'; // Added useRef
+import { useEffect, useRef, Suspense } from 'react'; // Added useRef
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 
-export default function GitHubCallback() {
+function GitHubCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
@@ -33,10 +33,11 @@ export default function GitHubCallback() {
         const res = await api.post('/auth/oauth/github/callback', { code });
         setAuth(res.data.user, res.data.access_token);
         router.push('/dashboard');
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('GitHub login failed:', err);
+        const error = err as { response?: { data?: { message?: string } } };
         const params = new URLSearchParams();
-        params.set('error', err.response?.data?.message || 'GitHub login failed');
+        params.set('error', error.response?.data?.message || 'GitHub login failed');
         router.push(`/login?${params.toString()}`);
       }
     };
@@ -51,5 +52,13 @@ export default function GitHubCallback() {
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
       </div>
     </div>
+  );
+}
+
+export default function GitHubCallback() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <GitHubCallbackContent />
+    </Suspense>
   );
 }
