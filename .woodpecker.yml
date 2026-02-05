@@ -47,7 +47,7 @@ steps:
       - go mod download
 
       - echo "Running Unit Tests..."
-      # - go test -v ./...
+      - go test -v ./...
 
       - echo "Building Binary..."
       - go build -v -o app_server ./cmd/server

@@ -13,9 +13,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/yourusername/skoservice-authenserver/internal/auth"
-	"github.com/yourusername/skoservice-authenserver/internal/db"
-	"github.com/yourusername/skoservice-authenserver/internal/utils"
+	"github.com/Akawatmor/skoservice-authenserver/internal/auth"
+	"github.com/Akawatmor/skoservice-authenserver/internal/db"
+	"github.com/Akawatmor/skoservice-authenserver/internal/utils"
 )
 
 // Models

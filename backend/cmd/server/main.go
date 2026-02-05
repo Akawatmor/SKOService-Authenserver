@@ -23,11 +23,11 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	
-	"github.com/yourusername/skoservice-authenserver/internal/auth"
-	"github.com/yourusername/skoservice-authenserver/internal/db"
-	"github.com/yourusername/skoservice-authenserver/internal/utils"
+	"github.com/Akawatmor/skoservice-authenserver/internal/auth"
+	"github.com/Akawatmor/skoservice-authenserver/internal/db"
+	"github.com/Akawatmor/skoservice-authenserver/internal/utils"
 	// Uncomment after running: swag init -g cmd/server/main.go -o docs
-	_ "github.com/yourusername/skoservice-authenserver/docs"
+	_ "github.com/Akawatmor/skoservice-authenserver/docs"
 )
 
 // @title SAuthenServer API
