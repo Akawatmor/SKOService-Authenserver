@@ -1,4 +1,4 @@
-module github.com/yourusername/skoservice-authenserver
+module github.com/Akawatmor/skoservice-authenserver
 
 go 1.24.0
 

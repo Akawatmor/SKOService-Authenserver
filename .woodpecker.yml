@@ -1,0 +1,91 @@
+steps:
+  # --- FRONTEND ZONE ---
+  frontend-check:
+    image: oven/bun:1
+    commands:
+      - cd frontend
+      - bun install --frozen-lockfile
+      # - bun run lint
+      - bun run build
+    when:
+      event: push
+      # ปรับ Condition เป็น Map structure (include) เพื่อความชัวร์
+      branch:
+        include: [ develop, "feature/*" ]
+      path:
+        include: [ "frontend/**" ]
+
+  # --- BACKEND ZONE ---
+  backend-check-and-test:
+    image: golang:1.24-alpine
+    # แก้ไข Environment: ต้องเป็น Map (key: value) ห้ามมีขีด (-) นำหน้าแบบ list
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: skoservice
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 8080
+    commands:
+      - apk add --no-cache postgresql-client curl bash
+
+      - cd backend
+      
+      # รอ Database
+      - |
+        echo "Waiting for postgres..."
+        for i in $(seq 1 30); do
+          pg_isready -h postgres -U postgres && break
+          echo "."
+          sleep 1
+        done
+
+      - PGPASSWORD=password psql -h postgres -U postgres -d skoservice -f db/schema/001_init_with_migrations.sql
+
+      - go mod download
+
+      - echo "Running Unit Tests..."
+      - go test -v ./...
+
+      - echo "Building Binary..."
+      - go build -v -o app_server ./cmd/server
+
+      # Smoke Test
+      - echo "Running Smoke Test (Start-up Check)..."
+      - ./app_server > server.log 2>&1 &
+      - SERVER_PID=$! 
+      - sleep 10
+      - |
+        if kill -0 $SERVER_PID; then 
+          echo "✅ Server started successfully (PID: $SERVER_PID)"
+          kill $SERVER_PID
+        else 
+          echo "❌ Server CRASHED during startup!"
+          echo "--- SERVER LOGS START ---"
+          cat server.log
+          echo "--- SERVER LOGS END ---"
+          exit 1
+        fi
+
+    when:
+      event: push
+      branch:
+        include: [ develop, "feature/*" ]
+      path:
+        include: [ "backend/**" ]
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      # Services environment ใช้ Map เหมือนกัน
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: skoservice
+    ports: [ 5432 ]
+
+  redis:
+    image: redis:alpine
+    ports: [ 6379 ]

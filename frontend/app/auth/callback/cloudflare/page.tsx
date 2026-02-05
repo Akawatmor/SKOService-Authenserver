@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 
-export default function CloudflareCallback() {
+function CloudflareCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
@@ -33,10 +33,11 @@ export default function CloudflareCallback() {
         const res = await api.post('/auth/oauth/cloudflare/callback', { code });
         setAuth(res.data.user, res.data.access_token);
         router.push('/dashboard');
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Cloudflare login failed:', err);
+        const error = err as { response?: { data?: { message?: string } } };
         const params = new URLSearchParams();
-        params.set('error', err.response?.data?.message || 'Cloudflare login failed');
+        params.set('error', error.response?.data?.message || 'Cloudflare login failed');
         router.push(`/login?${params.toString()}`);
       }
     };
@@ -51,5 +52,13 @@ export default function CloudflareCallback() {
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
       </div>
     </div>
+  );
+}
+
+export default function CloudflareCallback() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CloudflareCallbackContent />
+    </Suspense>
   );
 }

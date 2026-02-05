@@ -68,7 +68,9 @@ export default function Dashboard() {
         setMessage("Profile updated successfully");
         setIsEditing(false);
     } catch (err) {
-        setMessage("Failed to update profile");
+        // setMessage("Failed to update profile");
+         console.error(err);
+         setMessage("Failed to update profile");
     }
   }
 

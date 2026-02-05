@@ -21,8 +21,9 @@ export default function Login() {
       const res = await api.post('/auth/login', formData);
       setAuth(res.data.user, res.data.access_token);
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Login failed');
     }
   };
 
@@ -30,8 +31,9 @@ export default function Login() {
     try {
         const res = await api.get('/auth/oauth/google/url');
         window.location.href = res.data.url;
-    } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to initialize Google Login');
+    } catch (err: unknown) {
+        const error = err as { response?: { data?: { message?: string } } };
+        setError(error.response?.data?.message || 'Failed to initialize Google Login');
     }
   };
 
@@ -39,8 +41,9 @@ export default function Login() {
     try {
         const res = await api.get('/auth/oauth/github/url');
         window.location.href = res.data.url;
-    } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to initialize GitHub Login');
+    } catch (err: unknown) {
+        const error = err as { response?: { data?: { message?: string } } };
+        setError(error.response?.data?.message || 'Failed to initialize GitHub Login');
     }
   };
 
@@ -48,8 +51,9 @@ export default function Login() {
     try {
         const res = await api.get('/auth/oauth/cloudflare/url');
         window.location.href = res.data.url;
-    } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to initialize Cloudflare Login');
+    } catch (err: unknown) {
+        const error = err as { response?: { data?: { message?: string } } };
+        setError(error.response?.data?.message || 'Failed to initialize Cloudflare Login');
     }
   };
 
