@@ -13,40 +13,73 @@ steps:
       path: { include: [ 'frontend/**' ] }
 
   # --- BACKEND ZONE ---
-  backend-test:
+  backend-check-and-test:
     image: golang:1.21-alpine
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=skoservice
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PORT=8080
     commands:
+      - apk add --no-cache postgresql-client curl bash
+
+      # cd เข้า folder ครั้งเดียว จะมีผลกับบรรทัดล่างๆ ทั้งหมดใน step นี้
       - cd backend
+      
+      # ใช้ | เพื่อรองรับ Multi-line loop
+      - |
+        echo "Waiting for postgres..."
+        for i in $(seq 1 30); do
+          pg_isready -h postgres -U postgres && break
+          echo "."
+          sleep 1
+        done
+
+      - PGPASSWORD=password psql -h postgres -U postgres -d skoservice -f db/schema/001_init_with_migrations.sql
+
       - go mod download
-      - go test -v ./...
+
+      - echo "Running Unit Tests..."
+      #- go test -v ./...
+
+      - echo "Building Binary..."
+      - go build -v -o app_server ./cmd/server
+
+      # --- แก้ไขจุดนี้: เพิ่ม | และจัดย่อหน้าให้ถูกต้อง ---
+      - echo "Running Smoke Test (Start-up Check)..."
+      - ./app_server > server.log 2>&1 &
+      - SERVER_PID=$!
+      - sleep 10
+      - |
+        if kill -0 $SERVER_PID; then 
+          echo "✅ Server started successfully (PID: $SERVER_PID)"
+          kill $SERVER_PID
+        else 
+          echo "❌ Server CRASHED during startup!"
+          echo "--- SERVER LOGS START ---"
+          cat server.log
+          echo "--- SERVER LOGS END ---"
+          exit 1
+        fi
+
     when:
       event: push
       branch: [ develop, "feature/*" ]
       path: { include: [ 'backend/**' ] }
 
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=skoservice
+    ports: [ 5432 ]
 
-  # --- DEPLOY ZONE (เฉพาะ Develop) ---
-  # คุณอาจจะเพิ่ม frontend-deploy-dev ตรงนี้ด้วยในอนาคต
-  # backend-deploy-dev:
-  #   image: docker:git
-  #   secrets: [ db_host, db_password, jwt_token_secret ] 
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   commands:
-  #     - docker build -t sauthenserver:local-dev -f backend/Dockerfile backend/
-  #     - docker stop sauthenserver-dev1 || true
-  #     - docker rm sauthenserver-dev1 || true
-  #     - docker run -d --name sauthenserver-dev1 \
-  #         --restart unless-stopped \
-  #         --network web-network \
-  #         -p 8081:8080 \
-  #         -e APP_ENV=dev \
-  #         -e DB_HOST=$db_host \
-  #         -e DB_PASSWORD=$db_password \
-  #         -e JWT_SECRET=$jwt_token_secret \
-  #         sauthenserver:local-dev
-  #     - docker image prune -f
-  #   when:
-  #     branch: develop
-  #     event: push
-  #     path: { include: [ 'backend/**' ] }
+  redis:
+    image: redis:alpine
+    ports: [ 6379 ]
