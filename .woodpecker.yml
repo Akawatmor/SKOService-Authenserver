@@ -9,28 +9,31 @@ steps:
       - bun run build
     when:
       event: push
-      branch: [ develop, "feature/*" ]
-      path: { include: [ 'frontend/**' ] }
+      # ปรับ Condition เป็น Map structure (include) เพื่อความชัวร์
+      branch:
+        include: [ develop, "feature/*" ]
+      path:
+        include: [ "frontend/**" ]
 
   # --- BACKEND ZONE ---
   backend-check-and-test:
     image: golang:1.21-alpine
+    # แก้ไข Environment: ต้องเป็น Map (key: value) ห้ามมีขีด (-) นำหน้าแบบ list
     environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=password
-      - DB_NAME=skoservice
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - PORT=8080
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: skoservice
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 8080
     commands:
       - apk add --no-cache postgresql-client curl bash
 
-      # cd เข้า folder ครั้งเดียว จะมีผลกับบรรทัดล่างๆ ทั้งหมดใน step นี้
       - cd backend
       
-      # ใช้ | เพื่อรองรับ Multi-line loop
+      # รอ Database
       - |
         echo "Waiting for postgres..."
         for i in $(seq 1 30); do
@@ -44,15 +47,15 @@ steps:
       - go mod download
 
       - echo "Running Unit Tests..."
-      #- go test -v ./...
+      # - go test -v ./...
 
       - echo "Building Binary..."
       - go build -v -o app_server ./cmd/server
 
-      # --- แก้ไขจุดนี้: เพิ่ม | และจัดย่อหน้าให้ถูกต้อง ---
+      # Smoke Test
       - echo "Running Smoke Test (Start-up Check)..."
       - ./app_server > server.log 2>&1 &
-      - SERVER_PID=$!
+      - SERVER_PID=$! 
       - sleep 10
       - |
         if kill -0 $SERVER_PID; then 
@@ -68,16 +71,19 @@ steps:
 
     when:
       event: push
-      branch: [ develop, "feature/*" ]
-      path: { include: [ 'backend/**' ] }
+      branch:
+        include: [ develop, "feature/*" ]
+      path:
+        include: [ "backend/**" ]
 
 services:
   postgres:
     image: postgres:15-alpine
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=skoservice
+      # Services environment ใช้ Map เหมือนกัน
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: skoservice
     ports: [ 5432 ]
 
   redis:
